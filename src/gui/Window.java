@@ -259,8 +259,8 @@ public class Window extends JFrame {
             }
 
             // Creazione del file per il salvataggio delle mosse
-            if (ownColor == 0) createDirIfNotExists(new File("src/resources/matches/online"));
-            path = "src/resources/matches/online/match-" + cSubD + "/" + name + "-" + ownColor +".csv";
+            createDirIfNotExists(new File("src/resources/matches/online"));
+            path = "src/resources/matches/online/match-" + cSubD + "/" + name + "-" + ownColor + ".csv";
             System.out.println(ownColor);
             file = new File(path);
             createFileIfNotExists(file);
@@ -281,8 +281,8 @@ public class Window extends JFrame {
             timer1 = createTimer(label_time1, 1, timer0);
 
             // Creazione dei pannelli superiori e inferiori con le informazioni sui giocatori
-            bottomPanel = createPlayerPanel((ownColor == 0) ? name : "avversario", ChessColor.BLACK, label_time0, playerLabel1);
-            topPanel = createPlayerPanel((ownColor == 0) ? "avversario" : name, ChessColor.WHITE, label_time1, playerLabel0);
+            bottomPanel = createPlayerPanel((ownColor == 1) ? "avversario" : name, ChessColor.WHITE, label_time1, playerLabel0);
+            topPanel = createPlayerPanel((ownColor == 1) ? name : "avversario", ChessColor.BLACK, label_time0, playerLabel1);
             centerPanel = createCenterPanel();
 
             // Impostazione del tempo di gioco iniziale
@@ -412,7 +412,7 @@ public class Window extends JFrame {
                     c.printStackTrace();
                 }
 
-                new ResultWindow(player, otherPlayer, players.get(player).getName(), players.get(otherPlayer).getName(), "Tempo di " + players.get(otherPlayer).getName() + " esaurito!");
+                new ResultWindow(player, otherPlayer, players.get(player).getName(), players.get(otherPlayer).getName(), "Tempo esaurito!");
             }
         });
     }

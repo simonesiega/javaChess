@@ -1,0 +1,10 @@
+Contiene lo storico di tutte le partite offline:
+
+Costruisce una cartella per ogni partita:
+- Struttura cartella:
+src/resources/matches/online/ + match- + numeroPartita
+match - numero partita online
+
+- Struttura salvataggio:
+src/resources/matches/offline/" + name + "-" + color + ".csv
+nome del player - colore del player

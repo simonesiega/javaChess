@@ -1,0 +1,5 @@
+Contiene lo storico di tutte le partite offline:
+
+- Struttura salvataggio:
+src/resources/matches/offline/" + players.get(0).getName() + "-" + players.get(1).getName() + ".csv
+nome del player con i pezzi bianchi - nome del player con i pezzi neri

@@ -1,0 +1,3 @@
+Contiene lo storico di tutte le partite:
+    - offline: contiene lo storico delle partite offline: partita classica e con FEN modificata
+    - online: contiene lo storico delle partite online: partita con un amico

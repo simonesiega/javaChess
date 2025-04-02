@@ -13,7 +13,6 @@ public class Pair {
 
     /**
      * Costruttore della classe Pair.
-     *
      * @param a Il primo valore della coppia, tipicamente il tipo di pezzo.
      * @param b Il secondo valore della coppia, tipicamente il colore del pezzo.
      */
@@ -25,7 +24,6 @@ public class Pair {
     /**
      * Costruttore di copia per un oggetto Pair.
      * Crea una nuova coppia con i valori del Pair fornito.
-     *
      * @param piece Il Pair da copiare.
      */
     public Pair(Pair piece) {
@@ -35,8 +33,7 @@ public class Pair {
 
     /**
      * Restituisce una rappresentazione in formato stringa della coppia.
-     * La stringa contiene i valori di {@code a} e {@code b}.
-     *
+     * La stringa contiene i valori di a e b.
      * @return Una stringa che rappresenta la coppia.
      */
     @Override
@@ -49,7 +46,6 @@ public class Pair {
 
     /**
      * Restituisce il tipo di pezzo rappresentato dalla coppia.
-     *
      * @return Il tipo di pezzo (ad esempio, un intero che rappresenta un tipo di {@code ChessType}).
      */
     public Integer getChessType() {
@@ -58,7 +54,6 @@ public class Pair {
 
     /**
      * Restituisce il colore del pezzo rappresentato dalla coppia.
-     *
      * @return Il colore del pezzo (ad esempio, un intero che rappresenta un colore {@code ChessColor}).
      */
     public Integer getChessColor() {
@@ -68,9 +63,8 @@ public class Pair {
     /**
      * Confronta due oggetti Pair per verificare se sono uguali.
      * Due oggetti Pair sono uguali se entrambi i loro valori sono uguali.
-     *
      * @param obj L'oggetto da confrontare con la coppia.
-     * @return {@code true} se le coppie sono uguali, altrimenti {@code false}.
+     * @return true se le coppie sono uguali, altrimenti false.
      */
     @Override
     public boolean equals (Object obj) {
@@ -83,8 +77,7 @@ public class Pair {
 
     /**
      * Restituisce un valore hash per l'oggetto Pair.
-     * Il valore hash è calcolato utilizzando i valori di {@code a} e {@code b}.
-     *
+     * Il valore hash è calcolato utilizzando i valori di a e b.
      * @return Il valore hash dell'oggetto.
      */
     @Override

@@ -23,8 +23,6 @@ interface PopupResultListener {
  * Classe MyPopup che rappresenta un popup per la selezione della promozione di un pedone.
  */
 class MyPopup extends JDialog {
-    private final int width = 300;
-    private final int height = 150;
     private final ArrayList<Integer> values = new ArrayList<>();
 
     /**
@@ -35,6 +33,8 @@ class MyPopup extends JDialog {
      */
     public MyPopup(JFrame parent, PopupResultListener listener, int color) {
         super(parent, "Popup", true);
+        int width = 300;
+        int height = 150;
         this.setSize(width, height);
         this.setLocationRelativeTo(null);
 
@@ -57,7 +57,7 @@ class MyPopup extends JDialog {
                 dispose();
             });
 
-            setImageChessButton(button, 50, 50, color, values.get(j));
+            setImageChessButton(button, color, values.get(j));
             this.add(button);
         }
 
@@ -66,16 +66,15 @@ class MyPopup extends JDialog {
 
     /**
      * Imposta l'immagine di un pulsante con l'icona del pezzo corrispondente.
+     *
      * @param button Il pulsante su cui impostare l'icona.
-     * @param buttonWidth Larghezza dell'icona.
-     * @param buttonHeight Altezza dell'icona.
-     * @param color Colore del pezzo.
-     * @param type Tipo del pezzo.
+     * @param color  Colore del pezzo.
+     * @param type   Tipo del pezzo.
      */
-    private void setImageChessButton(JButton button, int buttonWidth, int buttonHeight, int color, int type) {
+    private void setImageChessButton(JButton button, int color, int type) {
         ImageIcon img = new ImageIcon(pieceToImg.get(new Pair(type, color)));
         Image scaledImage = img.getImage().getScaledInstance(
-                buttonWidth, buttonHeight, Image.SCALE_SMOOTH);
+                50, 50, Image.SCALE_SMOOTH);
         button.setIcon(new ImageIcon(scaledImage));
     }
 }

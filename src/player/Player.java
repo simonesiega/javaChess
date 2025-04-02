@@ -57,6 +57,10 @@ public class Player {
         return name;
     }
 
+    /**
+     * Imposta il nome dell'oggetto.
+     * @param name Il nuovo nome da assegnare
+     */
     public void setName(String name){this.name = name;}
 
     /**

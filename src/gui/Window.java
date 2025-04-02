@@ -46,26 +46,28 @@ public class Window extends JFrame {
     private static Timer timer1; // Timer per il giocatore 1
     private static JLabel label_time0; // Etichetta per il tempo del giocatore 0
     private static JLabel label_time1; // Etichetta per il tempo del giocatore 1
+
+    /* Pannelli */
     private static JLabel playerLabel0; // Etichetta per il nome del giocatore 0
     private static JLabel playerLabel1; // Etichetta per il nome del giocatore 1
     private static final Color color2 = new Color(115, 149, 82); // Colore della casella 1
     private static final Color color1 = new Color(235, 236, 208); // Colore della casella 2
-
     private static JPanel iconListPanel1; //Pannello icone per il giocatore 1
     private static JPanel iconListPanel2; //Pannello icone per il giocatore 2
 
+    /* Dimensioni */
     private final int WIDTH = 1000; // Larghezza della finestra
     private final int HEIGHT =  800; // Altezza della finestra
-
     private final int ROWS = 8; // Numero di righe sulla scacchiera
     private final int COLS = 8; // Numero di colonne sulla scacchiera
 
-    private final ArrayList<ChessButton> matrix = new ArrayList<>(); // Matrimonio dei bottoni della scacchiera
+    /* Struttura */
+    private final ArrayList<ChessButton> matrix = new ArrayList<>(); // Matrice dei bottoni della scacchiera
     private final ArrayList<Move> movesMatch = new ArrayList<>(); // Lista delle mosse del match
-
     private ArrayList<Pair> INITIAL_BOARD; // La scacchiera iniziale
     private String path; // Percorso del file di salvataggio delle mosse
 
+    /* Audio */
     private AudioInputStream audioInputStream; // Stream audio per la riproduzione di suoni
     private JPanel topPanel; // Pannello superiore
     private JPanel centerPanel; // Pannello centrale (scacchiera)
@@ -74,6 +76,7 @@ public class Window extends JFrame {
     private JPanel movePanel; // Pannello delle mosse
     private ChessButton piece1, piece2; // Pulsanti associati ai pezzi
 
+    /* Salvataggio */
     private File file; // File per il salvataggio delle mosse
     private int cSubD; // Sottocartella per il salvataggio della partita
 
@@ -83,24 +86,37 @@ public class Window extends JFrame {
      */
     private final ArrayList<Player> players = new ArrayList<>(); // Lista dei giocatori
 
+    /* Turno */
     /*
      * 0 --> bianco
      * 1 --> nero
      */
     private int turno; // Il turno corrente
-    private int ownColor;
+    private int ownColor; // Turno del thread per la modalitá online
     private int moveType; // Tipo di mossa
 
     private final boolean offlineGame; // true se la modalitá di gioco é offline, false altrimenti
 
+    /**
+     * Listener per rilevare e gestire il ridimensionamento del componente (ad esempio, una finestra o pannello).
+     * Quando il componente viene ridimensionato, questo listener ridimensiona le icone sui bottoni della scacchiera.
+     */
     private final ComponentListener listener = new ComponentAdapter() {
+
+        /**
+         * Metodo invocato quando il componente viene ridimensionato.
+         * Ridimensiona le icone sui bottoni della scacchiera in base alle nuove dimensioni.
+         * @param e L'evento di ridimensionamento che contiene le informazioni sul nuovo dimensionamento del componente.
+         */
         @Override
         public void componentResized(ComponentEvent e) {
-            int buttonWidth = boardPanel.getWidth() / COLS;
-            int buttonHeight =boardPanel.getHeight() / ROWS;
+            // Calcola le nuove dimensioni dei bottoni in base alle dimensioni correnti del pannello
+            int buttonWidth = boardPanel.getWidth() / COLS; // Larghezza di ciascun bottone
+            int buttonHeight = boardPanel.getHeight() / ROWS; // Altezza di ciascun bottone
 
+            // Itera su ogni bottone della scacchiera e ridimensiona l'icona
             for (ChessButton button : matrix) {
-                // Ridimensiona l'icona in base alla nuova dimensione dei bottoni
+                // Ridimensiona l'icona associata al bottone in base alle nuove dimensioni calcolate
                 setImageChessButton(button, buttonWidth, buttonHeight);
             }
         }
@@ -262,7 +278,6 @@ public class Window extends JFrame {
             // Creazione del file per il salvataggio delle mosse
             createDirIfNotExists(new File("src/resources/matches/online"));
             path = "src/resources/matches/online/match-" + cSubD + "/" + name + "-" + ownColor + ".csv";
-            System.out.println(ownColor);
             file = new File(path);
             createFileIfNotExists(file);
 
@@ -392,20 +407,18 @@ public class Window extends JFrame {
                 other.stop();
 
                 // Dichiarazione del vincitore
-                if (player == 1) {
-                    label_time0.setText("HO VINTO!");
-                } else {
-                    label_time1.setText("HO VINTO!");
-                }
+                if (player == 1) label_time0.setText("HO VINTO!");
+                else label_time1.setText("HO VINTO!");
 
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(2000); // Aspetta 2 secondi prima di chiudere la finestra
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
 
                 this.dispose();
 
+                // Se il gioco non è offline, invia il messaggio time-limit al server che termina la partita
                 if (!offlineGame){
                     JSONObject moveJson = new JSONObject();
                     moveJson.put("action", "move");
@@ -418,6 +431,8 @@ public class Window extends JFrame {
                     }
                 }
 
+                // Determina il vincitore e mostra la finestra dei risultati
+                // Controlla se il player al quale é scaduto il timer é this player
                 boolean winner = !(turno == ownColor);
                 int otherPlayer = (turno == 1) ? 0 : 1;
                 if (winner) new ResultWindow(otherPlayer, turno, players.get(otherPlayer).getName(), players.get(turno).getName(), players.get(turno).getName() + " ha esaurito il tempo!");
@@ -454,24 +469,35 @@ public class Window extends JFrame {
         }
     }
 
+    /**
+     * Crea una nuova directory numerata all'interno della cartella specificata.
+     * Se la directory non esiste, viene creata una nuova cartella con il nome "match-N".
+     * @param dir La directory in cui creare la nuova cartella
+     */
     private void createDirIfNotExists(File dir) {
         countSubD(dir);
-        String nuovoPercorso = dir + "/" + "match-" + cSubD;
+        String nuovoPercorso = dir + "/" + "match-" + cSubD; // Costruisce il percorso della nuova cartella
 
         File nuovaCartella = new File(nuovoPercorso);
         if (!nuovaCartella.exists()) {
-            nuovaCartella.mkdirs(); // Crea la cartella con il nuovo numero
+            nuovaCartella.mkdirs(); // Crea la cartella con il nuovo numero se non esiste già
         }
     }
 
+    /**
+     * Conta il numero di sottodirectory all'interno della cartella specificata.
+     * Se la cartella non esiste o non è una directory, il programma termina con un errore.
+     * @param cartella La directory di cui contare le sottodirectory
+     */
     private void countSubD(File cartella) {
         if (!cartella.exists() || !cartella.isDirectory()) {
             System.out.println("Percorso non valido: " + path);
             System.exit(-1);
         }
 
-        cSubD = Objects.requireNonNull(cartella.listFiles()).length;
+        cSubD = Objects.requireNonNull(cartella.listFiles()).length; // Conta il numero di directory presenti
     }
+
 
     /**
      * Crea un pannello per un giocatore, con nome, timer e pulsante impostazioni.
@@ -505,11 +531,9 @@ public class Window extends JFrame {
         iconPanel.setOpaque(false);
 
         // A seconda del colore, imposta il pannello delle icone catturate.
-        if (color == ChessColor.WHITE) {
-            iconListPanel1 = iconPanel;
-        } else {
-            iconListPanel2 = iconPanel;
-        }
+        if (color == ChessColor.WHITE) iconListPanel1 = iconPanel;
+        else iconListPanel2 = iconPanel;
+
 
         leftSection.add(playerLabel, BorderLayout.NORTH);
         leftSection.add(iconPanel, BorderLayout.CENTER);
@@ -890,6 +914,7 @@ public class Window extends JFrame {
             Thread.sleep(2000);
             this.dispose();
 
+            // Se il gioco non è offline, invia il messaggio checkmate al server che termina la partita
             if (!offlineGame) {
                 JSONObject moveJson = new JSONObject();
                 moveJson.put("action", "move");
@@ -966,11 +991,14 @@ public class Window extends JFrame {
      * @param buttonHeight altezza del bottone
      */
     private void setImageChessButton(ChessButton button, int buttonWidth, int buttonHeight){
+        // Ottiene l'immagine corrispondente al pezzo
         ImageIcon img = new ImageIcon(pieceToImg.get(button.getPiece()));
 
+        // Ridimensiona l'immagine mantenendo la qualità
         Image scaledImage = img.getImage().getScaledInstance(
                 buttonWidth, buttonHeight, Image.SCALE_SMOOTH);
 
+        // Imposta l'icona ridimensionata al pulsante
         button.setIcon(new ImageIcon(scaledImage));
     }
 
@@ -1179,7 +1207,7 @@ public class Window extends JFrame {
             return helperCheckAfterMoveIsStillCheck(copy, copyPlayer1.getPieces(), fakeKing, players.get(1).king);
         }
         else{
-            return helperCheckAfterMoveIsStillCheck(copy, copyPlayer2.getPieces(), fakeKing, players.get(0).king);
+            return helperCheckAfterMoveIsStillCheck(copy, copyPlayer2.getPieces(), fakeKing, players.getFirst().king);
         }
     }
 
@@ -1197,7 +1225,7 @@ public class Window extends JFrame {
         if(active.getActiveCheckPieces().size() > 1)
             return true;
 
-        ChessButton checkPiece = active.getActiveCheckPieces().get(0);
+        ChessButton checkPiece = active.getActiveCheckPieces().getFirst();
 
         // Verifica se è possibile mangiare il pezzo che sta dando lo scacco, il pezzo che mangia non deve essere pinnato
         if(!checkIfCanEatActivePiece(passive, active, chessButton, checkPiece))
@@ -1839,7 +1867,6 @@ public class Window extends JFrame {
 
         // Arrocco corto
         if(moveType == MoveType.SHORT_CASTLE){
-            System.out.println("DENTRO OOOOOO");
             //Muovo il re
             helperMovePiece(matrix.get(first.position()), second);
 
@@ -1947,7 +1974,7 @@ public class Window extends JFrame {
 
         // Mossa pedone en passant
         if(moveType == MoveType.ENPASSANT)
-            players.get(getOppositeColor()).removePiece(matrix.get(movesMatch.get(movesMatch.size()-1).position()));
+            players.get(getOppositeColor()).removePiece(matrix.get(movesMatch.getLast().position()));
 
         //sto promuovendo, devo rimuovere il pedone
         if(isPromote) players.get(turno).removePiece(first);
@@ -1971,7 +1998,7 @@ public class Window extends JFrame {
 
         ChessButton b = null;
         if(moveType == MoveType.ENPASSANT){
-            b = matrix.get(movesMatch.get(movesMatch.size()-1).position());
+            b = matrix.get(movesMatch.getLast().position());
             matrix.set(b.position(), new Blank(new Pair(-1,-1), b.getBackgroundColor(), b.getRow(), b.getCol()));
         }
 

@@ -50,7 +50,7 @@ public class King extends ChessButton {
         }
 
         // Possibilità di arrocco se il Re non si è mai mosso
-        // System.out.println("mi sono mosso? "+this.isAlreadyMoved);
+        // System.out.println("il re si é giá mosso? "+ this.isAlreadyMoved);
         if (!this.isAlreadyMoved) {
             res.add(new Move(row, col - 2, MoveType.LONG_CASTLE));
             res.add(new Move(row, col + 2, MoveType.SHORT_CASTLE));

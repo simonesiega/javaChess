@@ -15,7 +15,6 @@ public class PairCheck {
 
     /**
      * Costruttore della classe PairCheck.
-     *
      * @param a Il pezzo attivo (che sta pinnando).
      * @param b Il pezzo passivo (che viene pinnato).
      */
@@ -38,7 +37,6 @@ public class PairCheck {
     /**
      * Crea un nuovo oggetto {@code ChessButton} a partire da uno esistente,
      * copiando il tipo di pezzo e altre caratteristiche.
-     *
      * @param b Il pezzo da copiare.
      * @return Un nuovo oggetto {@code ChessButton} dello stesso tipo.
      */
@@ -72,7 +70,6 @@ public class PairCheck {
     /**
      * Restituisce una rappresentazione in formato stringa della coppia di pezzi.
      * La stringa contiene informazioni sui pezzi attivo e passivo.
-     *
      * @return Una stringa che rappresenta la coppia di pezzi.
      */
     @Override
@@ -85,7 +82,6 @@ public class PairCheck {
 
     /**
      * Restituisce il pezzo attivo (quello che sta pinnando).
-     *
      * @return Il pezzo attivo.
      */
     public ChessButton getActive() {
@@ -94,7 +90,6 @@ public class PairCheck {
 
     /**
      * Restituisce il pezzo passivo (quello che è pinnato).
-     *
      * @return Il pezzo passivo.
      */
     public ChessButton getPassive() {
@@ -104,9 +99,8 @@ public class PairCheck {
     /**
      * Confronta due oggetti PairCheck per verificare se sono uguali.
      * Due oggetti PairCheck sono uguali se entrambi i loro pezzi attivo e passivo sono uguali.
-     *
      * @param obj L'oggetto da confrontare con PairCheck.
-     * @return {@code true} se le coppie di pezzi sono uguali, altrimenti {@code false}.
+     * @return true se le coppie di pezzi sono uguali, altrimenti false.
      */
     @Override
     public boolean equals (Object obj) {
@@ -120,7 +114,6 @@ public class PairCheck {
     /**
      * Restituisce un valore hash per l'oggetto PairCheck.
      * Il valore hash è calcolato utilizzando i pezzi attivo e passivo.
-     *
      * @return Il valore hash dell'oggetto.
      */
     @Override

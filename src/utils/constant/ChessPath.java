@@ -1,6 +1,13 @@
 package utils.constant;
 
+/**
+ * Classe che definisce i percorsi dei file di risorse per le immagini dei pezzi e gli effetti sonori.
+ * I percorsi sono relativi alla cartella "resources" all'interno del progetto.
+ */
 public class ChessPath {
+    /**
+     * Percorsi delle immagini
+     */
     public static final String WHITE_BISHOP_IMG = "src/resources/images/pieces/w/wb.png";
     public static final String BLACK_BISHOP_IMG = "src/resources/images/pieces/b/bb.png";
     public static final String WHITE_KING_IMG = "src/resources/images/pieces/w/wk.png";
@@ -14,6 +21,9 @@ public class ChessPath {
     public static final String WHITE_TOWER_IMG = "src/resources/images/pieces/w/wr.png";
     public static final String BLACK_TOWER_IMG = "src/resources/images/pieces/b/br.png";
 
+    /**
+    * Percorsi dei suoni
+     */
     public static final String CAPTURE_AUDIO = "src/resources/audio/capture.wav";
     public static final String CASTLE_AUDIO = "src/resources/audio/castle.wav";
     public static final String CHECKMATE_AUDIO = "src/resources/audio/checkmate.wav";

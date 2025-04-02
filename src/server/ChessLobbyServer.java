@@ -148,6 +148,7 @@ class GameHandler implements Runnable {
         JSONObject response = new JSONObject();
         response.put("action", "update_board");
         response.put("move", moveJson.getString("move"));
+        response.put("moveType", moveJson.getInt("moveType"));
         opponent.output.println(response.toString());
     }
 

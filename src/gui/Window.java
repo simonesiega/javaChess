@@ -3,6 +3,7 @@ package gui;
 import org.json.JSONObject;
 
 import utils.Move;
+import utils.constant.ChessTime;
 import utils.constant.MoveType;
 import utils.Pair;
 import utils.constant.ChessColor;
@@ -28,6 +29,7 @@ import java.util.*;
 
 import static utils.constant.ChessPosition.*;
 import static utils.constant.ChessImg.*;
+import static utils.constant.ChessTime.*;
 import static utils.server.ServerSocketInit.IP_ADDRESS;
 
 public class Window extends JFrame {
@@ -150,9 +152,9 @@ public class Window extends JFrame {
             e.printStackTrace();
         }
 
-        // Imposta il tempo iniziale di gioco per entrambi i giocatori (5 minuti per il giocatore nero e 1 minuto per il giocatore bianco)
-        timeRemaining0 = 30000; // Tempo per il giocatore nero (5 minuti)
-        timeRemaining1 = 30000;
+        // Imposta il tempo iniziale di gioco per entrambi i giocatori
+        timeRemaining0 = ChessTime.NORMAL;
+        timeRemaining1 = ChessTime.NORMAL;
 
         // Crea un file per memorizzare le informazioni sulla partita (come le mosse dei giocatori)
         path = "src/resources/matches/offline/" + players.get(0).getName() + "-" + players.get(1).getName() + ".csv";
@@ -201,6 +203,10 @@ public class Window extends JFrame {
      * @param height Altezza della finestra
      */
     private void initOnline(int width, int height) {
+        // Impostazione del tempo di gioco iniziale
+        timeRemaining0 = RAPID; // Tempo giocatore nero
+        timeRemaining1 = RAPID;   // Tempo giocatore bianco
+
         try {
             // Apertura della connessione al server
             socket = new Socket(IP_ADDRESS, 25565);
@@ -276,8 +282,8 @@ public class Window extends JFrame {
             timer1 = createTimer(label_time1, 1, timer0);
 
             // Impostazione del tempo di gioco iniziale
-            timeRemaining0 = 6000; // Tempo giocatore nero
-            timeRemaining1 = 300000;   // Tempo giocatore bianco
+            timeRemaining0 = RAPID; // Tempo giocatore nero
+            timeRemaining1 = RAPID;   // Tempo giocatore bianco
 
             // Thread per la gestione della comunicazione con il server
             new Thread(() -> {
@@ -313,12 +319,15 @@ public class Window extends JFrame {
                                 int2 = 8 - (move2.charAt(1) - 48); // Riga finale
                                 piece2 = matrix.get(int2 * 8 + int1);
 
+                                moveType = message.getInt("moveType");
+
                                 // Esecuzione della mossa ricevuta
                                 getOrMakeMoveFromServer();
 
                                 // Reset dei riferimenti ai pezzi
                                 piece1 = null;
                                 piece2 = null;
+                                moveType = -1;
                                 break;
 
                             default:
@@ -834,6 +843,7 @@ public class Window extends JFrame {
                         JSONObject moveJson = new JSONObject();
                         moveJson.put("action", "move");
                         moveJson.put("move", piece1.printPosition() + "-" + piece2.printPosition());
+                        moveJson.put("moveType", moveType);
                         output.println(moveJson);
                     }
 
@@ -1829,7 +1839,7 @@ public class Window extends JFrame {
 
         // Arrocco corto
         if(moveType == MoveType.SHORT_CASTLE){
-
+            System.out.println("DENTRO OOOOOO");
             //Muovo il re
             helperMovePiece(matrix.get(first.position()), second);
 

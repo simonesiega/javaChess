@@ -28,6 +28,7 @@ import java.util.*;
 
 import static utils.constant.ChessPosition.*;
 import static utils.constant.ChessImg.*;
+import static utils.server.ServerSocketInit.IP_ADDRESS;
 
 public class Window extends JFrame {
 
@@ -150,8 +151,8 @@ public class Window extends JFrame {
         }
 
         // Imposta il tempo iniziale di gioco per entrambi i giocatori (5 minuti per il giocatore nero e 1 minuto per il giocatore bianco)
-        timeRemaining0 = 300000; // Tempo per il giocatore nero (5 minuti)
-        timeRemaining1 = 300000;   // Tempo per il giocatore bianco (1 minuto)
+        timeRemaining0 = 30000; // Tempo per il giocatore nero (5 minuti)
+        timeRemaining1 = 30000;
 
         // Crea un file per memorizzare le informazioni sulla partita (come le mosse dei giocatori)
         path = "src/resources/matches/offline/" + players.get(0).getName() + "-" + players.get(1).getName() + ".csv";
@@ -200,16 +201,9 @@ public class Window extends JFrame {
      * @param height Altezza della finestra
      */
     private void initOnline(int width, int height) {
-        // Indirizzo IP del server di gioco
-        String serverIP = "192.168.1.106";
-
-        // Imposta il tempo iniziale di gioco per entrambi i giocatori (5 minuti per il giocatore nero e 1 minuto per il giocatore bianco)
-        timeRemaining0 = 300000; // Tempo per il giocatore nero (5 minuti)
-        timeRemaining1 = 300000;   // Tempo per il giocatore bianco (1 minuto)
-
         try {
             // Apertura della connessione al server
-            socket = new Socket(serverIP, 25565);
+            socket = new Socket(IP_ADDRESS, 25565);
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
 
@@ -222,6 +216,7 @@ public class Window extends JFrame {
             if (nameRequest.getString("action").equals("request_name")) {
                 System.out.print("Inserisci il tuo nome: ");
                 name = scanner.nextLine();
+                players.getFirst().setName(name);
 
                 // Creazione della risposta con il nome del giocatore
                 JSONObject nameResponse = new JSONObject();
@@ -280,25 +275,9 @@ public class Window extends JFrame {
             timer0 = createTimer(label_time0, 0, timer1);
             timer1 = createTimer(label_time1, 1, timer0);
 
-            // Creazione dei pannelli superiori e inferiori con le informazioni sui giocatori
-            bottomPanel = createPlayerPanel((ownColor == 1) ? "avversario" : name, ChessColor.WHITE, label_time1, playerLabel0);
-            topPanel = createPlayerPanel((ownColor == 1) ? name : "avversario", ChessColor.BLACK, label_time0, playerLabel1);
-            centerPanel = createCenterPanel();
-
             // Impostazione del tempo di gioco iniziale
-            timeRemaining0 = 300000; // Tempo giocatore nero
+            timeRemaining0 = 6000; // Tempo giocatore nero
             timeRemaining1 = 300000;   // Tempo giocatore bianco
-
-            // Aggiunta dei pannelli alla finestra principale
-            this.add(topPanel, BorderLayout.NORTH);
-            this.add(centerPanel);
-            this.add(bottomPanel, BorderLayout.SOUTH);
-
-            // Riproduce il suono di inizio partita
-            playSound(MoveType.START_GAME);
-
-            // Salvataggio dello stato iniziale della scacchiera
-            writeFen(buildFenFromChessBoard());
 
             // Thread per la gestione della comunicazione con il server
             new Thread(() -> {
@@ -312,7 +291,8 @@ public class Window extends JFrame {
                         switch (message.getString("action")) {
                             case "get_opponent_name":
                                 // Ricezione del nome dell'avversario
-                                // System.out.println("Ricevuto nome avversario: " + message.getString("opponent_name"));
+                                System.out.println("Ricevuto nome avversario: " + message.getString("opponent_name"));
+                                players.get(1).setName(message.getString("opponent_name"));
                                 break;
 
                             case "update_board":
@@ -356,6 +336,22 @@ public class Window extends JFrame {
                 }
             }).start();
 
+            // Creazione dei pannelli superiori e inferiori con le informazioni sui giocatori
+            bottomPanel = createPlayerPanel((ownColor == 1) ? "avversario" : name, ChessColor.WHITE, label_time1, playerLabel0);
+            topPanel = createPlayerPanel((ownColor == 1) ? name : "avversario", ChessColor.BLACK, label_time0, playerLabel1);
+            centerPanel = createCenterPanel();
+
+            // Aggiunta dei pannelli alla finestra principale
+            this.add(topPanel, BorderLayout.NORTH);
+            this.add(centerPanel);
+            this.add(bottomPanel, BorderLayout.SOUTH);
+
+            // Riproduce il suono di inizio partita
+            playSound(MoveType.START_GAME);
+
+            // Salvataggio dello stato iniziale della scacchiera
+            writeFen(buildFenFromChessBoard());
+
         } catch (IOException e) {
             System.out.println("Impossibile connettersi al server.");
         }
@@ -393,7 +389,6 @@ public class Window extends JFrame {
                     label_time1.setText("HO VINTO!");
                 }
 
-                int otherPlayer = player == 1 ? 0 : 1;
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -402,17 +397,22 @@ public class Window extends JFrame {
 
                 this.dispose();
 
-                JSONObject moveJson = new JSONObject();
-                moveJson.put("action", "move");
-                moveJson.put("checkmate", true);
-                output.println(moveJson);
-                try {
-                    socket.close();
-                } catch (IOException c) {
-                    c.printStackTrace();
+                if (!offlineGame){
+                    JSONObject moveJson = new JSONObject();
+                    moveJson.put("action", "move");
+                    moveJson.put("time-limit", true);
+                    output.println(moveJson);
+                    try {
+                        socket.close();
+                    } catch (IOException c) {
+                        c.printStackTrace();
+                    }
                 }
 
-                new ResultWindow(player, otherPlayer, players.get(player).getName(), players.get(otherPlayer).getName(), "Tempo esaurito!");
+                boolean winner = !(turno == ownColor);
+                int otherPlayer = (turno == 1) ? 0 : 1;
+                if (winner) new ResultWindow(otherPlayer, turno, players.get(otherPlayer).getName(), players.get(turno).getName(), players.get(turno).getName() + " ha esaurito il tempo!");
+                else new ResultWindow(turno, otherPlayer, players.get(turno).getName(), players.get(otherPlayer).getName(), players.get(otherPlayer).getName() + " ha esaurito il tempo!");
             }
         });
     }
@@ -447,10 +447,7 @@ public class Window extends JFrame {
 
     private void createDirIfNotExists(File dir) {
         countSubD(dir);
-
-        System.out.println("dentro il metodo " + cSubD);
         String nuovoPercorso = dir + "/" + "match-" + cSubD;
-        System.out.println(nuovoPercorso);
 
         File nuovaCartella = new File(nuovoPercorso);
         if (!nuovaCartella.exists()) {
@@ -463,8 +460,6 @@ public class Window extends JFrame {
             System.out.println("Percorso non valido: " + path);
             System.exit(-1);
         }
-
-        System.out.println(cartella.listFiles().length);
 
         cSubD = Objects.requireNonNull(cartella.listFiles()).length;
     }
@@ -885,19 +880,23 @@ public class Window extends JFrame {
             Thread.sleep(2000);
             this.dispose();
 
-            JSONObject moveJson = new JSONObject();
-            moveJson.put("action", "move");
-            moveJson.put("checkmate", true);
-            output.println(moveJson);
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (!offlineGame) {
+                JSONObject moveJson = new JSONObject();
+                moveJson.put("action", "move");
+                moveJson.put("checkmate", true);
+                output.println(moveJson);
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             // Determina il giocatore perdente e mostra una finestra di risultato
+            boolean winner = turno == ownColor;
             int otherPlayer = (turno == 1) ? 0 : 1;
-            new ResultWindow(turno, otherPlayer, players.get(turno).getName(), players.get(otherPlayer).getName(), players.get(otherPlayer).getName() + " ha subito scacco matto!");
+            if (winner) new ResultWindow(turno, otherPlayer, players.get(turno).getName(), players.get(otherPlayer).getName(), players.get(otherPlayer).getName() + " ha subito scacco matto!");
+            else new ResultWindow(otherPlayer, turno, players.get(otherPlayer).getName(), players.get(turno).getName(), players.get(turno).getName() + " ha subito scacco matto!");
 
             return; // Termina la funzione se c'è scacco matto
         }

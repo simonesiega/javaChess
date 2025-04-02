@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class Player {
     public Move king;  // Posizione del re del giocatore
     private final ArrayList<ChessButton> pieces;  // Lista dei pezzi del giocatore
-    private final String name;  // Nome del giocatore
+    private String name;  // Nome del giocatore
 
     private final ArrayList<ChessButton> pieceEaten = new ArrayList<>();  // Lista dei pezzi mangiati dal giocatore
     private ArrayList<PairCheck> pinnedPieces;  // Lista dei pezzi che sono pinnati (bloccati) dal giocatore avversario
@@ -56,6 +56,8 @@ public class Player {
     public String getName() {
         return name;
     }
+
+    public void setName(String name){this.name = name;}
 
     /**
      * Aggiunge un pezzo mangiato alla lista dei pezzi mangiati dal giocatore.

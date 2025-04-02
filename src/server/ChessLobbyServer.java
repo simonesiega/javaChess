@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 import org.json.JSONObject;
 
+import static utils.server.ServerSocketInit.*;
 
 public class ChessLobbyServer {
     /*
@@ -13,7 +14,7 @@ public class ChessLobbyServer {
     private static String currentTurn = "0";
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(25565, 50, InetAddress.getByName("192.168.1.106"));) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT, 50, InetAddress.getByName(IP_ADDRESS));) {
             System.out.println("Server in attesa di due giocatori...");
 
             while(true){
@@ -71,8 +72,8 @@ class Player {
 }
 
 class GameHandler implements Runnable {
-    private Player whitePlayer;
-    private Player blackPlayer;
+    private final Player whitePlayer;
+    private final Player blackPlayer;
 
     /*
      * 0 --> bianco
@@ -130,8 +131,16 @@ class GameHandler implements Runnable {
         JSONObject moveJson = new JSONObject(message);
         if (!moveJson.getString("action").equals("move")) return;
 
+        if (moveJson.optBoolean("time-limit", false)) {
+            // System.out.println("reached time limit");
+            endGameTime(opponent, currentPlayer);
+            return;
+        }
+
         if (moveJson.optBoolean("checkmate", false)) {
-            endGame(currentPlayer, opponent);
+            // System.out.println("reached check mate");
+            endGameCheckMate(currentPlayer, opponent);
+            return;
         }
 
         System.out.println(currentPlayer.name + " (" + currentPlayer.color + ") ha mosso: " + moveJson.getString("move"));
@@ -140,11 +149,31 @@ class GameHandler implements Runnable {
         response.put("action", "update_board");
         response.put("move", moveJson.getString("move"));
         opponent.output.println(response.toString());
-
-
     }
 
-    private void endGame(Player winner, Player loser) {
+    private void endGameCheckMate(Player winner, Player loser) {
+        try {
+            // Messaggio di fine partita per entrambi i giocatori
+            JSONObject winnerMsg = new JSONObject();
+            winnerMsg.put("action", "game_over");
+            winnerMsg.put("result", "Hai vinto!");
+            winner.output.println(winnerMsg.toString());
+
+            JSONObject loserMsg = new JSONObject();
+            loserMsg.put("action", "game_over");
+            loserMsg.put("result", "Hai perso! Scacco matto.");
+            loser.output.println(loserMsg.toString());
+
+            // Chiudi connessioni
+            winner.socket.close();
+            loser.socket.close();
+            System.out.println("Partita terminata. " + winner.name + " ha vinto.");
+        } catch (IOException e) {
+            System.out.println("Errore durante la chiusura delle connessioni.");
+        }
+    }
+
+    private void endGameTime(Player winner, Player loser) {
         try {
             // Messaggio di fine partita per entrambi i giocatori
             JSONObject winnerMsg = new JSONObject();
